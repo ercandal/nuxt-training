@@ -1,0 +1,19 @@
+/* assets/css/animations.css */
+.rotate-on-hover .icon-rotate-hover {
+    transition: transform 0.3s ease;
+}
+
+.rotate-on-hover:hover .icon-rotate-hover {
+    transform: rotate(15deg);
+    scale: 1.2;
+}
+
+.nav-login:hover {
+    background-color: rgb(46, 65, 82);
+    transition: 0.3s ease;
+}
+
+.nav-signup:hover {
+    background-color: rgb(46, 65, 82);
+    transition: 0.3s ease;
+}

@@ -16,9 +16,9 @@
                             <a class="nav-link dropdown-toggle text-light" href="#" role="button"
                                 data-bs-toggle="dropdown">Kategoriler</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/products/1">Kategori 1</a></li>
-                                <li><a class="dropdown-item" href="/products">Kategori 1</a></li>
-                                <li><a class="dropdown-item" href="/products">Kategori 1</a></li>
+                                <li><a class="dropdown-item" href="#">Link 1</a></li>
+                                <li><a class="dropdown-item" href="#">Link 2</a></li>
+                                <li><a class="dropdown-item" href="#">Link 3</a></li>
                             </ul>
                         </li>
                         <form action="/search" method="GET" class="d-flex">
@@ -48,33 +48,69 @@
             </div>
         </nav>
     </div>
+    <div>
+        <div>
+            <div class="row">
+                <div class="col-3">
+                    <h1>aside bar</h1>
+                </div>
+                <div class="col-9">
+                    <div class="row">
+                        <div class="col-4" v-for="product in products" :key="product.id">
+                            <div class="card h-100 d-flex flex-column pt-3">
+                                <div class="card-header">
+                                    <h5>{{ product.title }}</h5>
+                                </div>
+                                <div class="card-body d-flex align-items-center justify-content-center">
+                                    <img class="h-auto w-75" :src="product.image" :alt="product.title" />
+                                </div>
+                                <div class="card-footer">
+                                    <h5>{{ product.price }} <span>TL</span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <Pagination :total="totalProducts" :currentPage="currentPage" />
 
-    
 </template>
 
-<script>
-export default {
-    
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import { useFetch, useRoute } from '#app'
+import Pagination from '~/components/Pagination.vue'
+
+const products = ref([])
+const route = useRoute()
+const currentPage = ref(parseInt(route.params.page, 10) || 1)
+const perPage = 6 // Her sayfada 6 ürün gösterilecek
+const totalProducts = ref(0)
+
+// Ürünleri çeken fonksiyon
+const fetchProducts = async (page) => {
+    const { data, error } = await useFetch('https://fakestoreapi.com/products')
+    if (error.value) {
+        console.error('Ürünler yüklenirken hata oluştu:', error.value)
+        return
+    }
+
+    totalProducts.value = data.value.length
+    const startIndex = (page - 1) * perPage
+    const endIndex = startIndex + perPage
+    products.value = data.value.slice(startIndex, endIndex)
 }
+
+// İlk yükleme sırasında ürünleri çek
+onMounted(() => {
+    fetchProducts(currentPage.value)
+})
+
+// Sayfa numarası değiştiğinde ürünleri yeniden çek
+watch(() => route.params.page, (newPage) => {
+    currentPage.value = parseInt(newPage, 10) || 1
+    fetchProducts(currentPage.value)
+})
 </script>
-
-<style scoped>
-.rotate-on-hover .icon-rotate-hover {
-    transition: transform 0.3s ease;
-}
-
-.rotate-on-hover:hover .icon-rotate-hover {
-    transform: rotate(15deg);
-    scale: 1.2;
-}
-
-.nav-login:hover {
-    background-color: rgb(46, 65, 82);
-    transition: 0.3s ease;
-}
-
-.nav-signup:hover {
-    background-color: rgb(46, 65, 82);
-    transition: 0.3s ease;
-}
-</style>
